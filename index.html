@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Idiom Flashcards</title>
+  <style>
+  body { 
+    font-family: system-ui, -apple-system, sans-serif; 
+    background: #f0f2f5; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    height: 100vh; 
+    margin: 0; 
+    padding: 16px;
+    box-sizing: border-box;
+    overflow: hidden; /* Prevents scrollbars */
+  }
+  
+  .card-container { 
+    perspective: 1000px; 
+    width: min(800px, 120vw); 
+    height: min(610px, 90vh); /* Scales card height to fit screen */
+    cursor: pointer; 
+  }
+  
+  .card { 
+    width: 100%; 
+    height: 100%; 
+    position: relative; 
+    transform-style: preserve-3d; 
+    transition: transform 0.6s ease-in-out; 
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12); 
+    border-radius: 20px; 
+  }
+  
+  .card.flipped { 
+    transform: rotateY(180deg); 
+  }
+  
+  .card-face { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    backface-visibility: hidden; 
+    border-radius: 20px; 
+    background: white; 
+    box-sizing: border-box; 
+    padding: 14px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: space-between; 
+    text-align: center; 
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+  }
+  
+  .card-back { 
+    transform: rotateY(180deg); 
+    background: #f8fafc; 
+  }
+  
+  h2 { 
+    margin: 0; 
+    color: #0f172a; 
+    font-size: clamp(1.2rem, 3vh, 1.8rem);
+  }
+  
+  #front-media, #back-media {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0; /* Allows image container to shrink */
+    margin-top: 8px;
+  }
+
+  img { 
+    max-width: 100%; 
+    max-height: 100%; 
+    object-fit: contain; 
+    border-radius: 12px; 
+  }
+  
+  .placeholder { 
+    width: 100%; 
+    height: 100%; 
+    background: #e2e8f0; 
+    border: 2px dashed #cbd5e1; 
+    border-radius: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: #475569; 
+    font-size: 0.95rem; 
+    padding: 12px; 
+    box-sizing: border-box; 
+    line-height: 1.4;
+  }
+  
+  .controls { 
+    margin-top: 16px; 
+    display: flex; 
+    gap: 16px; 
+    align-items: center; 
+  }
+  
+  button { 
+    padding: 10px 20px; 
+    font-size: 0.95rem; 
+    border: none; 
+    background: #2563eb; 
+    color: white; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    transition: background 0.2s;
+  }
+  
+  button:hover { 
+    background: #1d4ed8; 
+  }
+  
+  .hint { 
+    margin-top: 8px; 
+    font-size: 0.85rem; 
+    color: #64748b; 
+  }
+</style>
+</head>
+<body>
+
+  <div class="card-container" onclick="flipCard()">
+    <div class="card" id="card">
+      <div class="card-face card-front">
+        <h2 id="front-title"></h2>
+        <div id="front-media"></div>
+      </div>
+      <div class="card-face card-back">
+        <h2 id="back-title"></h2>
+        <p id="back-def" style="margin: 6px 0; font-size: 1.1rem; font-weight: 500; color: #1e293b;"></p>
+        <p id="back-example" style="font-style: italic; color: #64748b; font-size: 0.95rem; margin-bottom: 12px;"></p>
+        <div id="back-media"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevCard(event)">Previous</button>
+    <span id="counter" style="font-weight: 600; color: #334155; font-size: 1.1rem;">1 / 25</span>
+    <button onclick="nextCard(event)">Next</button>
+  </div>
+  <div class="hint">Click the card to flip!</div>
+
+  <script>
+    const cards = [
+      {
+        idiom: "Break the ice",
+        def: "To start a conversation or ease tension in a new situation.",
+        example: "\"A quick game helped break the ice at the start of the meeting.\"",
+        frontImg: "images/break_ice.jpg",
+        backImg: "images/break_ice2.jpg",
+        frontDesc: "Physically chopping a block of ice.",
+        backDesc: "Two people shaking hands over coffee at a party."
+      },
+      {
+        idiom: "Hit the books",
+        def: "To study hard.",
+	frontImg: "images/hit_the_books.jpg",
+        backImg: "images/hit_the_books2.jpg",
+        example: "\"I have exams next week, so I need to hit the books tonight.\"",
+        frontDesc: "A student punching a stack of textbooks with boxing gloves.",
+        backDesc: "A focused student studying at a tidy desk with open notebooks."
+      },
+      {
+        idiom: "Piece of cake",
+        def: "Something very easy to do.",
+	frontImg: "images/piece_of_cake.jpg",
+        backImg: "images/piece_of_cake2.jpg",
+        example: "\"Don't worry about the quiz—it's going to be a piece of cake.\"",
+        frontDesc: "A single delicious slice of chocolate cake on a plate.",
+        backDesc: "A runner crossing a finish line with ease, smiling and giving a thumbs-up."
+      },
+      {
+        idiom: "Under the weather",
+        def: "Feeling sick or unwell.",
+	frontImg: "images/under_the_weather.jpg",
+        backImg: "images/under_the_weather2.jpg",
+        example: "\"I won't be able to make it to work today; I'm feeling a bit under the weather.\"",
+        frontDesc: "A person with a small rain cloud hovering over them, raining only on them.",
+        backDesc: "Someone tucked in bed with a thermometer in their mouth."
+      },
+      {
+        idiom: "Cost an arm and a leg",
+        def: "Very expensive.",
+	frontImg: "images/cost_arm_leg.jpg",
+        backImg: "images/cost_arm_leg2.jpg",
+        example: "\"That new sports car costs an arm and a leg.\"",
+        frontDesc: "A customer handing over a literal detached cartoon arm and leg to a cashier.",
+        backDesc: "A person looking shocked at a massive price tag on a luxury car."
+      },
+      {
+        idiom: "Once in a blue moon",
+        def: "Something that rarely happens.",
+        example: "\"He only visits his home town once in a blue moon.\"",
+        frontDesc: "A glowing, bright blue moon in a dark night sky.",
+        backDesc: "A calendar with a rare date circled in red and a surprised person looking at it."
+      },
+      {
+        idiom: "Spill the beans",
+        def: "To reveal a secret.",
+        example: "\"We were planning a surprise party, but Mark spilled the beans.\"",
+        frontDesc: "Someone accidentally knocking over a jar full of baked beans.",
+        backDesc: "Someone whispering a secret into a shocked friend's ear."
+      },
+      {
+        idiom: "Bite the bullet",
+        def: "To face something difficult with courage.",
+        example: "\"I hate going to the dentist, but I just have to bite the bullet.\"",
+        frontDesc: "A person grimacing while literally biting down on a shiny metal bullet.",
+        backDesc: "A person taking a deep breath and opening the door to a tough meeting."
+      },
+      {
+        idiom: "Let the cat out of the bag",
+        def: "To accidentally reveal a secret.",
+        example: "\"I accidentally let the cat out of the bag about the surprise promotion.\"",
+        frontDesc: "A surprised cat jumping out of a brown paper shopping bag.",
+        backDesc: "Someone looking guilty after revealing secret news early."
+      },
+      {
+        idiom: "On the ball",
+        def: "Alert and doing a good job.",
+        example: "\"Our new assistant is really on the ball—she caught the error right away.\"",
+        frontDesc: "A person balancing on top of a giant beach ball like a performer.",
+        backDesc: "An efficient, alert worker multitasking easily at a desk."
+      },
+      {
+        idiom: "Pull yourself together",
+        def: "Calm down and get control of your emotions.",
+        example: "\"Take a deep breath and pull yourself together before you present.\"",
+        frontDesc: "A person made of puzzle pieces reassembling their own body.",
+        backDesc: "Someone taking a deep, calming breath and standing tall."
+      },
+      {
+        idiom: "Hit the nail on the head",
+        def: "To say or do something exactly right.",
+        example: "\"You hit the nail on the head when you identified our main problem.\"",
+        frontDesc: "A hammer striking the head of a nail with perfect accuracy.",
+        backDesc: "A speaker pointing at a whiteboard while everyone nods enthusiastically."
+      },
+      {
+        idiom: "Speak of the devil",
+        def: "Said when someone you were just talking about shows up.",
+        example: "\"Speak of the devil! We were just talking about your trip.\"",
+        frontDesc: "A cartoon red devil popping up next to two people chatting.",
+        backDesc: "Two friends gossiping, surprised as the person they mentioned walks in."
+      },
+      {
+        idiom: "The ball is in your court",
+        def: "It's your decision or responsibility now.",
+        example: "\"I sent them my final offer, so the ball is in their court now.\"",
+        frontDesc: "A tennis court with a tennis ball sitting on one side of the net.",
+        backDesc: "One person handing a contract and pen to another person to sign."
+      },
+      {
+        idiom: "Cut corners",
+        def: "To do something poorly or cheaply to save time/effort.",
+        example: "\"Don't cut corners on safety equipment; buy the best you can afford.\"",
+        frontDesc: "Scissors literally cutting off the four corners of a sheet of paper.",
+        backDesc: "A wobbly, poorly built wooden chair held together with duct tape."
+      },
+      {
+        idiom: "Get a taste of your own medicine",
+        def: "To experience the same bad treatment you gave others.",
+        example: "\"He always pranks people, but today he got a taste of his own medicine.\"",
+        frontDesc: "A doctor grimacing while drinking bitter liquid medicine.",
+        backDesc: "A prankster looking shocked when someone plays a prank on them in return."
+      },
+      {
+        idiom: "Actions speak louder than words",
+        def: "What you do matters more than what you say.",
+        example: "\"Don't just promise to help—actions speak louder than words.\"",
+        frontDesc: "A muscular arm flexing with a megaphone shouting louder than speech bubbles.",
+        backDesc: "Someone helping a friend move heavy boxes instead of just making promises."
+      },
+      {
+        idiom: "Don't judge a book by its cover",
+        def: "Don't form an opinion based only on appearance.",
+        example: "\"The restaurant looks run-down, but don't judge a book by its cover.\"",
+        frontDesc: "A dusty, ugly book cover opening to reveal glowing gold pages inside.",
+        backDesc: "A tough-looking biker gently rescuing and cuddling a tiny kitten."
+      },
+      {
+        idiom: "Kill two birds with one stone",
+        def: "To accomplish two things with one action.",
+        example: "\"By walking to work, I kill two birds with one stone: save money and get exercise.\"",
+        frontDesc: "A single pebble knocking the hats off two cartoon birds at once.",
+        backDesc: "A person listening to an educational audiobook while jogging."
+      },
+      {
+        idiom: "Miss the boat",
+        def: "To miss an opportunity.",
+        example: "\"If you don't apply for the scholarship today, you'll miss the boat.\"",
+        frontDesc: "A person reaching out from a dock as a ship pulls away into the water.",
+        backDesc: "Someone looking disappointed at a 'Sold Out' sign for tickets."
+      },
+      {
+        idiom: "On thin ice",
+        def: "In a risky or precarious situation.",
+        example: "\"After arriving late three times this week, he is on thin ice with his boss.\"",
+        frontDesc: "A person walking carefully across frozen water as large cracks form.",
+        backDesc: "An employee looking nervous while a boss hands them a written warning."
+      },
+      {
+        idiom: "Burning the midnight oil",
+        def: "Working late into the night.",
+        example: "\"She's been burning the midnight oil to finish the project on time.\"",
+        frontDesc: "An oil lamp burning brightly in a dark room beside a clock showing 12:00 AM.",
+        backDesc: "A student typing on a laptop late at night with coffee cups nearby."
+      },
+      {
+        idiom: "A blessing in disguise",
+        def: "Something that seems bad at first but turns out good.",
+        example: "\"Losing that job was a blessing in disguise because I started my own business.\"",
+        frontDesc: "An angel wearing a trench coat, sunglasses, and a fake mustache as a disguise.",
+        backDesc: "A driver stuck with a flat tire, realizing it prevented them from entering a severe jam."
+      },
+      {
+        idiom: "Get cold feet",
+        def: "To become nervous about doing something.",
+        example: "\"He was going to go skydiving, but he got cold feet right before boarding.\"",
+        frontDesc: "Bare feet frozen inside solid blocks of ice.",
+        backDesc: "Someone hesitating nervously before stepping onto a stage to give a speech."
+      },
+      {
+        idiom: "Every cloud has a silver lining",
+        def: "There's something good even in a bad situation.",
+        example: "\"I broke my leg, but every cloud has a silver lining—I had time to read ten books.\"",
+        frontDesc: "A dark storm cloud outlined by a bright silver border.",
+        backDesc: "Someone smiling in the rain as a vibrant rainbow appears overhead."
+      }
+    ];
+
+    let currentIndex = 0;
+
+    function renderCard() {
+      const c = cards[currentIndex];
+      document.getElementById('card').classList.remove('flipped');
+      document.getElementById('front-title').innerText = c.idiom;
+      document.getElementById('back-title').innerText = c.idiom;
+      document.getElementById('back-def').innerText = c.def;
+      document.getElementById('back-example').innerText = c.example;
+      document.getElementById('counter').innerText = `${currentIndex + 1} / ${cards.length}`;
+
+      const frontMedia = document.getElementById('front-media');
+      if (c.frontImg) {
+        frontMedia.innerHTML = `<img src="${c.frontImg}" alt="${c.idiom}">`;
+      } else {
+        frontMedia.innerHTML = `<div class="placeholder">${c.frontDesc}</div>`;
+      }
+
+      const backMedia = document.getElementById('back-media');
+      if (c.backImg) {
+        backMedia.innerHTML = `<img src="${c.backImg}" alt="${c.idiom}">`;
+      } else {
+        backMedia.innerHTML = `<div class="placeholder">${c.backDesc}</div>`;
+      }
+    }
+
+    function flipCard() {
+      document.getElementById('card').classList.toggle('flipped');
+    }
+
+    function nextCard(e) {
+      e.stopPropagation();
+      currentIndex = (currentIndex + 1) % cards.length;
+      renderCard();
+    }
+
+    function prevCard(e) {
+      e.stopPropagation();
+      currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+      renderCard();
+    }
+
+    renderCard();
+  </script>
+</body>
+</html>
