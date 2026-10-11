@@ -2,158 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Idiom Flashcards</title>
   <style>
-  body { 
-    font-family: system-ui, -apple-system, sans-serif; 
-    background: #f0f2f5; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    height: 100vh; 
-    margin: 0; 
-    padding: 16px;
-    box-sizing: border-box;
-    overflow: hidden; /* Prevents scrollbars */
-  }
-  
-  .card-container { 
-    perspective: 1000px; 
-    width: min(800px, 120vw); 
-    height: min(610px, 90vh); /* Scales card height to fit screen */
-    cursor: pointer; 
-  }
-  
-  .card { 
-    width: 100%; 
-    height: 100%; 
-    position: relative; 
-    transform-style: preserve-3d; 
-    transition: transform 0.6s ease-in-out; 
-    box-shadow: 0 12px 30px rgba(0,0,0,0.12); 
-    border-radius: 20px; 
-  }
-  
-  .card.flipped { 
-    transform: rotateY(180deg); 
-  }
-  
-  .card-face { 
-    position: absolute; 
-    width: 100%; 
-    height: 100%; 
-    backface-visibility: hidden; 
-    border-radius: 20px; 
-    background: white; 
-    box-sizing: border-box; 
-    padding: 14px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: space-between; 
-    text-align: center; 
-    border: 1px solid #e2e8f0;
+  * { box-sizing: border-box; }
+  body {
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    background: linear-gradient(160deg, #e0e7ff 0%, #fdf2f8 100%);
+    margin: 0; padding: 12px;
+    height: 100vh; height: 100dvh;
+    display: flex; justify-content: center;
     overflow: hidden;
   }
-  
-  .card-back { 
-    transform: rotateY(180deg); 
-    background: #f8fafc; 
-  }
-  
-  h2 { 
-    margin: 0; 
-    color: #0f172a; 
-    font-size: clamp(1.2rem, 3vh, 1.8rem);
-  }
-  
-  #front-media, #back-media {
-    width: 100%;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0; /* Allows image container to shrink */
-    margin-top: 8px;
-  }
+  .app { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 
-  img { 
-    max-width: 100%; 
-    max-height: 100%; 
-    object-fit: contain; 
-    border-radius: 12px; 
+  /* Progress */
+  .progress-wrap { height: 12px; background: rgba(255,255,255,.8); border-radius: 99px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,.12); }
+  .progress { height: 100%; width: 0; background: linear-gradient(90deg, #22c55e, #84cc16); border-radius: 99px; transition: width .5s ease; }
+  .stats { display: flex; justify-content: space-between; margin-top: 6px; font-weight: 700; color: #334155; font-size: .95rem; }
+
+  /* Card */
+  .card-container { perspective: 1200px; flex: 1; min-height: 0; cursor: pointer; }
+  .card { --accent: #2563eb; width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .6s ease-in-out; border-radius: 20px; box-shadow: 0 12px 30px rgba(0,0,0,.14); }
+  .card:hover { box-shadow: 0 16px 36px rgba(0,0,0,.2); }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 20px;
+    background: white; padding: 24px 16px 14px; border: 1px solid #e2e8f0; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center;
   }
-  
-  .placeholder { 
-    width: 100%; 
-    height: 100%; 
-    background: #e2e8f0; 
-    border: 2px dashed #cbd5e1; 
-    border-radius: 12px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    color: #475569; 
-    font-size: 0.95rem; 
-    padding: 12px; 
-    box-sizing: border-box; 
-    line-height: 1.4;
+  .card-face::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10px; background: var(--accent); }
+  .card-back { transform: rotateY(180deg); background: color-mix(in srgb, var(--accent) 6%, white); }
+
+  h2 { margin: 0; color: var(--accent); font-weight: 800; font-size: clamp(1.8rem, 6vh, 3rem); line-height: 1.15; }
+  .card-back { padding-top: 20px; }
+  .card-back h2 { font-size: clamp(1.1rem, 3.2vh, 1.6rem); }
+  .definition {
+    margin: 6px 0 0; padding: 6px 14px; width: 100%; text-align: left;
+    background: color-mix(in srgb, var(--accent) 14%, white); border-left: 6px solid var(--accent);
+    border-radius: 12px; font-size: clamp(1rem, 2.5vh, 1.2rem); font-weight: 600; color: #1e293b;
   }
-  
-  .controls { 
-    margin-top: 16px; 
-    display: flex; 
-    gap: 16px; 
-    align-items: center; 
+  .example {
+    margin: 6px 0 0; padding: 6px 14px; width: 100%; background: white; border: 2px solid #e2e8f0;
+    border-radius: 18px; font-style: italic; color: #475569; font-size: clamp(.9rem, 2.1vh, 1rem);
   }
-  
-  button { 
-    padding: 10px 20px; 
-    font-size: 0.95rem; 
-    border: none; 
-    background: #2563eb; 
-    color: white; 
-    border-radius: 10px; 
-    cursor: pointer; 
-    font-weight: 600; 
-    transition: background 0.2s;
-  }
-  
-  button:hover { 
-    background: #1d4ed8; 
-  }
-  
-  .hint { 
-    margin-top: 8px; 
-    font-size: 0.85rem; 
-    color: #64748b; 
-  }
+  .example b { color: var(--accent); font-style: normal; }
+
+  #front-media, #back-media { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; margin-top: 6px; }
+  img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; }
+  .placeholder { width: 100%; height: 100%; background: #e2e8f0; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: .95rem; padding: 12px; line-height: 1.4; }
+
+  /* Buttons */
+  .controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  button { padding: 8px 14px; font-size: .9rem; border: none; background: #2563eb; color: white; border-radius: 10px; cursor: pointer; font-weight: 700; font-family: inherit; transition: background .2s, transform .1s; }
+  button:hover { background: #1d4ed8; }
+  button:active { transform: scale(.96); }
+  button.secondary { background: white; color: #334155; border: 2px solid #cbd5e1; }
+  button.secondary:hover { background: #f1f5f9; }
+  button.got { background: #16a34a; }
+  button.got:hover { background: #15803d; }
+  button.learning { background: #f59e0b; }
+  button:disabled { opacity: .35; cursor: default; pointer-events: none; }
+  button.learning:hover { background: #d97706; }
+
+  /* Toast, confetti, finish screen */
+  #toast { position: fixed; top: 18px; left: 50%; transform: translate(-50%, -80px); background: #0f172a; color: white; padding: 10px 22px; border-radius: 99px; font-weight: 700; z-index: 60; transition: transform .4s; pointer-events: none; }
+  #toast.show { transform: translate(-50%, 0); }
+  .confetti { position: fixed; top: -14px; width: 10px; height: 14px; z-index: 70; pointer-events: none; animation: fall var(--d) linear forwards; }
+  @keyframes fall { to { transform: translate(var(--x), 105vh) rotate(720deg); } }
+  #done { position: fixed; inset: 0; background: rgba(15,23,42,.6); display: none; align-items: center; justify-content: center; z-index: 65; padding: 16px; }
+  #done.show { display: flex; }
+  .done-box { background: white; border-radius: 24px; padding: 32px; text-align: center; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+  .done-box h1 { margin: 0 0 8px; font-size: 2rem; color: #0f172a; }
+  .done-box p { color: #475569; font-size: 1.1rem; margin: 0 0 20px; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } .confetti { display: none; } }
 </style>
 </head>
 <body>
 
-  <div class="card-container" onclick="flipCard()">
-    <div class="card" id="card">
-      <div class="card-face card-front">
-        <h2 id="front-title"></h2>
-        <div id="front-media"></div>
+  <div class="app">
+    <div>
+      <div class="progress-wrap"><div class="progress" id="bar"></div></div>
+      <div class="stats"><span id="counter"></span><span id="mastered-text"></span></div>
+    </div>
+
+    <div class="card-container" onclick="flipCard()">
+      <div class="card" id="card">
+        <div class="card-face card-front">
+          <h2 id="front-title"></h2>
+          <div id="front-media"></div>
+        </div>
+        <div class="card-face card-back">
+          <h2 id="back-title"></h2>
+          <p class="definition" id="back-def"></p>
+          <p class="example" id="back-example"></p>
+          <div id="back-media"></div>
+        </div>
       </div>
-      <div class="card-face card-back">
-        <h2 id="back-title"></h2>
-        <p id="back-def" style="margin: 6px 0; font-size: 1.1rem; font-weight: 500; color: #1e293b;"></p>
-        <p id="back-example" style="font-style: italic; color: #64748b; font-size: 0.95rem; margin-bottom: 12px;"></p>
-        <div id="back-media"></div>
-      </div>
+    </div>
+
+    <div class="controls">
+      <button class="learning rate-btn" onclick="stillLearning()">🔄 Still learning</button>
+      <button onclick="prevCard()">← Previous</button>
+      <button class="secondary" onclick="flipCard()">Flip</button>
+      <button onclick="nextCard()">Next →</button>
+      <button class="secondary" onclick="shuffleDeck()">🔀 Shuffle</button>
+      <button class="got rate-btn" onclick="gotIt()">✅ Got it!</button>
     </div>
   </div>
 
-  <div class="controls">
-    <button onclick="prevCard(event)">Previous</button>
-    <span id="counter" style="font-weight: 600; color: #334155; font-size: 1.1rem;">1 / 25</span>
-    <button onclick="nextCard(event)">Next</button>
+  <div id="toast"></div>
+  <div id="done">
+    <div class="done-box">
+      <h1>🎉 You did it!</h1>
+      <p>You mastered all <span id="total-text"></span> idioms. Amazing work!</p>
+      <button onclick="startRound(true)">Play again</button>
+    </div>
   </div>
-  <div class="hint">Click the card to flip!</div>
 
   <script>
     const cards = [
@@ -243,9 +208,9 @@
         def: "Alert and doing a good job.",
 	frontImg: "images/on_the_ball.jpg",
         backImg: "images/on_the_ball2.jpg",
-        example: "\"Our new assistant is really on the ball—she caught the error right away.\"",
+        example: "\"Ready for the bus with her backpack, Maggie was on the ball this morning.\"",
         frontDesc: "A person balancing on top of a giant beach ball like a performer.",
-        backDesc: "An efficient, alert worker multitasking easily at a desk."
+        backDesc: "A student with a backpack ready for the school bus."
       },
       {
         idiom: "Pull yourself together",
@@ -263,7 +228,7 @@
         backImg: "images/hit_nail_head2.jpg",
         example: "\"You hit the nail on the head when you told me that answer.\"",
         frontDesc: "A hammer striking the head of a nail with perfect accuracy.",
-        backDesc: "A speaker pointing at a whiteboard while everyone nods enthusiastically."
+        backDesc: "A teacher congratulating a student on her school work."
       },
       {
         idiom: "Speak of the devil",
@@ -347,22 +312,22 @@
         backDesc: "An employee looking nervous while a boss hands them a written warning."
       },
       {
-        idiom: "Burning the midnight oil",
-        def: "Working late into the night.",
-	frontImg: "images/burning_midnight_oil.jpg",
-        backImg: "images/burning_midnight_oil2.jpg",
-        example: "\"She's been burning the midnight oil to finish the project on time.\"",
-        frontDesc: "An oil lamp burning brightly in a dark room beside a clock showing 12:00 AM.",
-        backDesc: "A student typing on a laptop late at night with coffee cups nearby."
+        idiom: "Hold your horses",
+  	def: "To wait a moment, slow down, or be patient.",
+	frontImg: "images/hold_your_horses.jpg",
+        backImg: "images/hold_your_horses2.jpg",
+        example: "\"Hold your horses! Get your jacket and backpack before taking off for school.\"",
+  	frontDesc: "A person pulling back hard on reins, trying to physically hold back a group of wild, galloping horses.",
+  	backDesc: "Someone holding up a hand in a 'stop' gesture to politely ask a friend to pause and slow down."
       },
       {
-        idiom: "A blessing in disguise",
-        def: "Something that seems bad at first but turns out good.",
-	frontImg: "images/blessing_in_disguise.jpg",
-        backImg: "images/blessing_in_disguise2.jpg",
-        example: "\"Losing that job was a blessing in disguise because I started my own business.\"",
-        frontDesc: "An angel wearing a trench coat, sunglasses, and a fake mustache as a disguise.",
-        backDesc: "A driver stuck with a flat tire, realizing it prevented them from entering a severe jam."
+        idiom: "When pigs fly",
+  	def: "Something that will never happen or is impossible.",
+	frontImg: "images/when_pigs_fly.jpg",
+        backImg: "images/when_pigs_fly2.jpg",
+        example: "\"He said he would start waking up at 5:00 AM every day when pigs fly!\"",
+  	frontDesc: "A cartoon pig with small white wings soaring through fluffy clouds in a blue sky.",
+  	backDesc: "Someone laughing and shaking their head in disbelief at an impossible promise."
       },
       {
         idiom: "Get cold feet",
@@ -374,59 +339,188 @@
         backDesc: "Someone hesitating nervously before stepping onto a stage to give a speech."
       },
       {
-        idiom: "Every cloud has a silver lining",
-        def: "There's something good even in a bad situation.",
-	frontImg: "images/cloud_silver_lining.jpg",
-        backImg: "images/cloud_silver_lining2.jpg",
-        example: "\"I broke my leg, but every cloud has a silver lining—I had time to read ten books.\"",
-        frontDesc: "A dark storm cloud outlined by a bright silver border.",
-        backDesc: "Someone smiling in the rain as a vibrant rainbow appears overhead."
+        idiom: "In hot water",
+  	def: "In serious trouble or facing punishment.",
+	frontImg: "images/in_hot_water.jpg",
+        backImg: "images/in_hot_water2.jpg",
+        example: "\"He found himself in hot water after using ChatGPT to cheat on the test.\"",
+  	frontDesc: "A person sitting inside a giant cooking pot filled with steaming, bubbling hot water.",
+  	backDesc: "A teacher holding a test paper while looking sternly at a student."
       }
     ];
 
-    let currentIndex = 0;
+    const $ = id => document.getElementById(id);
+    const cardEl = $('card');
+    const total = cards.length;
+    const accent = i => `hsl(${(i * 47 + 210) % 360} 70% 42%)`;
 
-    function renderCard() {
-      const c = cards[currentIndex];
-      document.getElementById('card').classList.remove('flipped');
-      document.getElementById('front-title').innerText = c.idiom;
-      document.getElementById('back-title').innerText = c.idiom;
-      document.getElementById('back-def').innerText = c.def;
-      document.getElementById('back-example').innerText = c.example;
-      document.getElementById('counter').innerText = `${currentIndex + 1} / ${cards.length}`;
+    let deck = [], pos = 0, mastered = 0, streak = 0, flipped = false, fillTimer, toastTimer;
 
-      const frontMedia = document.getElementById('front-media');
-      if (c.frontImg) {
-        frontMedia.innerHTML = `<img src="${c.frontImg}" alt="${c.idiom}">`;
-      } else {
-        frontMedia.innerHTML = `<div class="placeholder">${c.frontDesc}</div>`;
+    function shuffleArray(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
       }
+    }
 
-      const backMedia = document.getElementById('back-media');
-      if (c.backImg) {
-        backMedia.innerHTML = `<img src="${c.backImg}" alt="${c.idiom}">`;
-      } else {
-        backMedia.innerHTML = `<div class="placeholder">${c.backDesc}</div>`;
+    function startRound(shuffleIt) {
+      deck = cards.map((_, i) => i);
+      if (shuffleIt) shuffleArray(deck);
+      pos = 0; mastered = 0; streak = 0;
+      $('done').classList.remove('show');
+      render();
+    }
+
+    // Builds a regex that still finds the idiom when the verb tense or the
+    // pronoun changes (e.g. "spill" -> "spilled", "your" -> "his", "get" -> "got").
+    const IRREGULAR = {
+      break: ['broke', 'broken'], get: ['got', 'gotten'], bite: ['bit', 'bitten'],
+      hold: ['held'], speak: ['spoke', 'spoken'], is: ['are', 'was', 'were', 'be', 'been', "'s"],
+      "don't": ["doesn't", "didn't", 'do not', 'does not', 'did not']
+    };
+    const POSSESSIVE = ['your', 'my', 'his', 'her', 'their', 'our', 'its'];
+    const REFLEXIVE = ['yourself', 'myself', 'himself', 'herself', 'themselves', 'ourselves', 'itself'];
+
+    function wordForms(word, isFirst) {
+      const w = word.toLowerCase();
+      if (POSSESSIVE.includes(w)) return POSSESSIVE;
+      if (REFLEXIVE.includes(w)) return REFLEXIVE;
+      let forms = [w, ...(IRREGULAR[w] || [])];
+      if (isFirst && /^[a-z]+$/.test(w)) {      // regular verb endings on the first word
+        const last = w.slice(-1);
+        forms.push(w + 's', w + 'es', w + 'ed', w + 'd', w + 'ing', w.replace(/e$/, '') + 'ing',
+                   w + last + 'ed', w + last + 'ing', w.replace(/y$/, 'ies'), w.replace(/y$/, 'ied'));
+        (IRREGULAR[w] || []).forEach(f => forms.push(f + 'ing'));
       }
+      return [...new Set(forms)];
+    }
+
+    function idiomRegex(idiom) {
+      const words = idiom.trim().split(/\s+/);
+      const parts = words.map((word, i) =>
+        '(?:' + wordForms(word, i === 0).map(f =>
+          f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/'/g, "['’]")
+        ).sort((a, b) => b.length - a.length).join('|') + ')');
+      return new RegExp('\\b(' + parts.join('\\s+') + ')\\b', 'i');
+    }
+
+    function setRate(on) {
+      document.querySelectorAll('.rate-btn').forEach(b => b.disabled = !on);
+    }
+
+    function fillCard() {
+      const idx = deck[pos], c = cards[idx];
+      cardEl.style.setProperty('--accent', accent(idx));
+      $('front-title').innerText = c.idiom;
+      $('back-title').innerText = c.idiom;
+      $('back-def').innerText = c.def;
+
+      // Bold the idiom inside the example sentence when it appears
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      $('back-example').innerHTML = esc(c.example).replace(idiomRegex(c.idiom), '<b>$1</b>');
+
+      $('front-media').innerHTML = c.frontImg
+        ? `<img src="${c.frontImg}" alt="${c.idiom}">`
+        : `<div class="placeholder">${c.frontDesc}</div>`;
+      $('back-media').innerHTML = c.backImg
+        ? `<img src="${c.backImg}" alt="${c.idiom}">`
+        : `<div class="placeholder">${c.backDesc}</div>`;
+    }
+
+    function render() {
+      if (!deck.length) return;
+      const wasFlipped = flipped;
+      flipped = false;
+      cardEl.classList.remove('flipped');
+      setRate(false);
+      // wait for the flip-back so the next answer isn't revealed mid-turn
+      clearTimeout(fillTimer);
+      if (wasFlipped) fillTimer = setTimeout(fillCard, 300); else fillCard();
+      updateProgress();
+    }
+
+    function updateProgress() {
+      $('bar').style.width = (mastered / total * 100) + '%';
+      $('counter').innerText = `Card ${pos + 1} of ${deck.length} left`;
+      $('mastered-text').innerText = (streak >= 2 ? `🔥 ${streak} in a row · ` : '') + `⭐ ${mastered} of ${total} mastered`;
     }
 
     function flipCard() {
-      document.getElementById('card').classList.toggle('flipped');
+      flipped = !flipped;
+      cardEl.classList.toggle('flipped', flipped);
+      setRate(flipped);
     }
 
-    function nextCard(e) {
-      e.stopPropagation();
-      currentIndex = (currentIndex + 1) % cards.length;
-      renderCard();
+    function nextCard() { pos = (pos + 1) % deck.length; render(); }
+    function prevCard() { pos = (pos - 1 + deck.length) % deck.length; render(); }
+    function shuffleDeck() { shuffleArray(deck); pos = 0; render(); toast('Shuffled! 🔀'); }
+
+    function gotIt() {
+      deck.splice(pos, 1);
+      mastered++; streak++;
+      if (!deck.length) { finish(); return; }
+      if (pos >= deck.length) pos = 0;
+      praise();
+      render();
     }
 
-    function prevCard(e) {
-      e.stopPropagation();
-      currentIndex = (currentIndex - 1 + cards.length) % cards.length;
-      renderCard();
+    function stillLearning() {
+      streak = 0;
+      deck.push(deck.splice(pos, 1)[0]);   // comes back at the end of the deck
+      if (pos >= deck.length) pos = 0;
+      toast("No problem — it'll come back around! 💪");
+      render();
     }
 
-    renderCard();
+    function praise() {
+      const half = Math.round(total / 2);
+      if (mastered === half) { toast('Halfway there! 🎯'); confetti(50); }
+      else if (mastered % 5 === 0) { toast(`${mastered} down! Great job! 🌟`); confetti(50); }
+      else if ([3, 5, 8, 12].includes(streak)) toast(`🔥 ${streak} in a row!`);
+      else if (mastered === 1) toast('First one mastered! 👏');
+    }
+
+    function finish() {
+      updateProgress();
+      setRate(false);
+      $('total-text').innerText = total;
+      $('done').classList.add('show');
+      confetti(140);
+    }
+
+    function toast(msg) {
+      const t = $('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    function confetti(n) {
+      const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+      for (let i = 0; i < n; i++) {
+        const s = document.createElement('span');
+        s.className = 'confetti';
+        s.style.left = Math.random() * 100 + 'vw';
+        s.style.background = colors[i % colors.length];
+        s.style.setProperty('--x', (Math.random() * 200 - 100) + 'px');
+        s.style.setProperty('--d', (1.8 + Math.random() * 1.5) + 's');
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 3600);
+      }
+    }
+
+    // Keyboard: ← → to move, Space to flip
+    document.addEventListener('keydown', e => {
+      if ($('done').classList.contains('show')) return;
+      if (e.key === 'ArrowRight') nextCard();
+      else if (e.key === 'ArrowLeft') prevCard();
+      else if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+    });
+    // Stop buttons from keeping focus so Space only flips the card
+    document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => b.blur()));
+
+    startRound(false);
   </script>
 </body>
 </html>
