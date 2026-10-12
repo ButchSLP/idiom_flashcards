@@ -404,6 +404,22 @@
       return new RegExp('\\b(' + parts.join('\\s+') + ')\\b', 'i');
     }
 
+    // Sounds (files live in the "sounds" folder next to this file)
+    const sounds = {
+      flip: new Audio('sounds/flip.mp3'),
+      sparkle: new Audio('sounds/sparkle.mp3'),
+      celebration: new Audio('sounds/celebration.mp3')
+    };
+    Object.values(sounds).forEach(a => a.preload = 'auto');
+    function playSound(name) {
+      try {
+        const a = sounds[name];
+        a.currentTime = 0;
+        const p = a.play();
+        if (p && p.catch) p.catch(() => {});   // ignore if a file is missing or blocked
+      } catch (e) {}
+    }
+
     function setRate(on) {
       document.querySelectorAll('.rate-btn').forEach(b => b.disabled = !on);
     }
@@ -446,6 +462,7 @@
     }
 
     function flipCard() {
+      playSound('flip');
       flipped = !flipped;
       cardEl.classList.toggle('flipped', flipped);
       setRate(flipped);
@@ -485,7 +502,8 @@
       setRate(false);
       $('total-text').innerText = total;
       $('done').classList.add('show');
-      confetti(140);
+      confetti(140, true);        // the celebration sound plays instead of the sparkle
+      playSound('celebration');
     }
 
     function toast(msg) {
@@ -496,7 +514,8 @@
       toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
     }
 
-    function confetti(n) {
+    function confetti(n, quiet) {
+      if (!quiet) playSound('sparkle');
       const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
       for (let i = 0; i < n; i++) {
         const s = document.createElement('span');
