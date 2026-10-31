@@ -12,11 +12,10 @@
     margin: 0; padding: 12px;
     height: 100vh; height: 100dvh;
     display: flex; justify-content: center;
-    overflow-x: hidden; overflow-y: auto;
+    overflow: hidden;
   }
-  .app { width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 10px; min-height: 540px;
-    /* The 3D flip briefly makes the card larger than its box, which used to trigger a page scrollbar. Clip it. */
-    overflow: hidden; overflow: clip; }
+  html { overflow: hidden; }
+  .app { width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 
   /* Title */
   .app-header { text-align: center; line-height: 1.15; }
@@ -34,7 +33,7 @@
     align-items: center;
     gap: 12px;
     flex: 1;
-    min-height: 260px;
+    min-height: 0;
     width: 100%;
   }
 
@@ -145,10 +144,17 @@
 
   @media (max-width: 650px) {
     .main-row { flex-direction: column; }
-    .card-container { min-height: 300px; width: 100%; }
+    .card-container { width: 100%; }
     .app-subtitle { display: none; }
     .side-btn { width: 100%; height: 44px; flex-direction: row; min-width: 0; }
     .side-btn .icon { font-size: 1.2rem; }
+  }
+  /* Short laptop windows: tighten things so everything fits without scrolling */
+  @media (max-height: 680px) {
+    .app { gap: 6px; }
+    .app-subtitle { display: none; }
+    .side-btn { height: 110px; padding: 10px 12px; }
+    .side-btn .icon { font-size: 1.5rem; }
   }
 </style>
 </head>
